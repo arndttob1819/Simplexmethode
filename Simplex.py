@@ -1,4 +1,5 @@
 import copy
+from fractions import Fraction
 """
 Zielfunktion ZF: bis zu neun Variablen, Koeffizienten angeben und max/min
 Restriktionen Ri: bis zu neun Gleichungen, jeweils Koeffizienten angeben in der Form: X >= A * x1 + B * x2 + ...
@@ -73,14 +74,14 @@ def showTabelle(Tab):
     Kopfzeile = "            "
     for i in range(len(Tab[-2])):
         Kopfzeile += "            " + Tab[-2][i]
-    print(Kopfzeile)
+    print(Kopfzeile+"\n")
     """
     Erstellen der Zielfunktionszeile
     """
     Zeile = ""
     for i in range(1, len(Tab[0])):
         Zeile +=auffuellen(14-len(str(round(Tab[0][i],2))))+str(round(Tab[0][i],2))
-    print(Zeile)
+    print(Zeile+"\n")
     """
     Erstellen der Rechenzeilen
     """    
@@ -91,9 +92,9 @@ def showTabelle(Tab):
             Zeile = Tab[-1][i-1]
             for j in range(1, len(Tab[i])):
                 if j == 1:
-                    Zeile +=auffuellen(12-len(str(round(Tab[i][j],2))))+str(round(Tab[i][j],2))
+                    Zeile +=auffuellen(12-len(str(round(Tab[i][j],4))))+str(round(Tab[i][j],4))
                 else:
-                    Zeile +=auffuellen(14-len(str(round(Tab[i][j],2))))+str(round(Tab[i][j],2))
+                    Zeile +=auffuellen(14-len(str(round(Tab[i][j],4))))+str(round(Tab[i][j],4))
             print(Zeile)
     print("")
     return
@@ -164,7 +165,7 @@ def simplex(Tab, PZ, PS):
     if PZ == -1:
         return -1 
     Pivot = Tab[PZ][PS]
-    print(PZ,PS,Pivot)
+    #print(PZ,PS,Pivot)
     NewTab = copy.deepcopy(Tab)
     for i in range(0,10):
         if NewTab[i] == [0,0]:
@@ -189,33 +190,90 @@ def simplex(Tab, PZ, PS):
     temp = NewTab[-2][PS-2]
     NewTab[-2][PS-2] = NewTab[-1][PZ-1]
     NewTab[-1][PZ-1] = temp
-    return NewTab        
+    return NewTab
 
-def iteration(Tab):
-    showTabelle(Tab)
-    while 1:
-        k = 0
-        for i in range(1,len(Tab[0])):
+def simplex_fract(Tab, PZ, PS):
+    if PZ == -1:
+        return -1
+    Pivot = Tab[PZ][PS]
+    NewTab = copy.deepcopy(Tab)
+    for i in range(0,10):
+        if NewTab[i] == [0,0]:
+            pass
+        else:
+            for j in range(1, len(NewTab[i])):
+                
+                if i == PZ and j == PS:
+                    #print("Pivotelement")
+                    NewTab[i][j] = Fraction(1,Pivot)
+                elif i == PZ:
+                    #print("Pivotzeile")
+                    NewTab[i][j] = Fraction(Tab[i][j],Pivot)
+                elif j == PS:
+                    #print("Pivotspalte")
+                    NewTab[i][j] = Fraction(-1*Tab[i][j],Pivot)
+                else:
+                    #print("Kreuzregel")
+                    #print(Tab[i][j], " - ",Tab[i][PS], " * ",Tab[PZ][j], " / ", Pivot, " = ",  Tab[i][j] - ((Tab[i][PS]*Tab[PZ][j])/Pivot))
+                    NewTab[i][j] = Fraction(Tab[i][j] - Fraction((Tab[i][PS]*Tab[PZ][j]),Pivot))
+                    
+    temp = NewTab[-2][PS-2]
+    NewTab[-2][PS-2] = NewTab[-1][PZ-1]
+    NewTab[-1][PZ-1] = temp
+    return NewTab
+
+def iteration(Tab, fract):
+    if fract == 0:
+        showTabelle(Tab)
+        while 1:
+            k = 0
+            for i in range(1,len(Tab[0])):
+                if k == 0:
+                    if Tab[0][i]<0:
+                        PS = pivotspalte(Tab)
+                        PZ = pivotzeile(Tab, PS)
+                        Tab = simplex(Tab, PZ, PS)
+                        if Tab == -1:
+                            return
+                        showTabelle(Tab)
+                        k = 1
             if k == 0:
-                if Tab[0][i]<0:
-                    PS = pivotspalte(Tab)
-                    PZ = pivotzeile(Tab, PS)
-                    Tab = simplex(Tab, PZ, PS)
-                    if Tab == -1:
-                        return
-                    showTabelle(Tab)
-                    k = 1
-        if k == 0:
-            return Tab
+                return Tab
+    if fract == 1:
+        showTabelle(Tab)
+        while 1:
+            k = 0
+            for i in range(1,len(Tab[0])):
+                if k == 0:
+                    if Tab[0][i]<0:
+                        PS = pivotspalte(Tab)
+                        PZ = pivotzeile(Tab, PS)
+                        Tab = simplex_fract(Tab, PZ, PS)
+                        if Tab == -1:
+                            return
+                        showTabelle(Tab)
+                        k = 1
+            if k == 0:
+                return Tab
+            
                 
             
        
         
 ################# Test
-ZF = ZF(1, 0, [2,0,-3, 5])
-R1 = RS(-1, 1, [0,-1,3,0])
-R2 = RS(-1, 5, [2,1,0,-2])
-R3 = RS(-1, 2, [3,0,-3,1])
-Tab = Tabelle(ZF, R1, R2, R3)
+ZF1 = ZF(1, 0, [8,-3,-2])
+R1 = RS(-1, 13, [-7,6,1])
+R2 = RS(-1, 7, [5,-2,1])
+Tab = Tabelle(ZF1, R1, R2)
 
-iteration(Tab)
+iteration(Tab,0)
+
+ZF2 = ZF(1, 0, [8,-3,-2])
+R1 = RS(-1, 13, [-7,6,1])
+R2 = RS(-1, 7, [5,-2,1])
+Tab = Tabelle(ZF2, R1, R2)
+
+iteration(Tab,1)
+
+#print(Fraction(Fraction(1,2).numerator*Fraction(3,2).numerator, Fraction(1,2).denominator*Fraction(3,2).denominator))
+
