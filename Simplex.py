@@ -190,6 +190,7 @@ def simplex(Tab, PZ, PS):
     temp = NewTab[-2][PS-2]
     NewTab[-2][PS-2] = NewTab[-1][PZ-1]
     NewTab[-1][PZ-1] = temp
+    print(temp+"<-->"+NewTab[-2][PS-2])
     return NewTab
 
 def simplex_fract(Tab, PZ, PS):
@@ -220,6 +221,7 @@ def simplex_fract(Tab, PZ, PS):
     temp = NewTab[-2][PS-2]
     NewTab[-2][PS-2] = NewTab[-1][PZ-1]
     NewTab[-1][PZ-1] = temp
+    print(temp+"<-->"+NewTab[-2][PS-2])
     return NewTab
 
 def iteration(Tab, fract):
@@ -268,10 +270,15 @@ Tab = Tabelle(ZF1, R1, R2)
 
 iteration(Tab,0)
 
-ZF2 = ZF(1, 0, [8,-3,-2])
-R1 = RS(-1, 13, [-7,6,1])
-R2 = RS(-1, 7, [5,-2,1])
-Tab = Tabelle(ZF2, R1, R2)
+ZF2 = ZF(1, 0, [100,50,80,30])
+R1 = RS(-1, 1080, [40,10,20,30])
+R2 = RS(-1, 108, [5,2,6,4])
+R3 = RS(-1, 6000, [30,20,20,10])
+R4 = RS(-1, 210, [5,7,2,6])
+R5 = RS(-1, 72, [3,1,2,1])
+R6 = RS(-1, 2400, [1,2,1,0])
+R7 = RS(-1, 21, [1,0,1,0])
+Tab = Tabelle(ZF2, R1, R2, R3, R4, R5, R6, R7)
 
 iteration(Tab,1)
 
