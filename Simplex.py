@@ -136,7 +136,7 @@ def pivotzeile(Tab, PS):
         if minimum(zeile)==-1:
             return -1
         PZ = minimum(zeile)
-        return PZ
+        return PZ           
 
 def maximum(liste):
     zahl = 0
